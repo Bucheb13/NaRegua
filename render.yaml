@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: naregua
+    env: docker
+    plan: starter
+    region: oregon
+    # A imagem será construída a partir do Dockerfile
+    # PreDeploy é opcional porque tratamos no entrypoint.sh
+    # preDeployCommand: "php artisan migrate --force"
+    disk:
+      name: naregua-storage
+      mountPath: /var/www/html/storage
+      sizeGB: 1
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_LEVEL
+        value: info
+      - key: DB_CONNECTION
+        value: pgsql
+      # Render injeta DATABASE_URL do Postgres gerenciado (copie o Internal Database URL)
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        value: https://naregua.onrender.com
