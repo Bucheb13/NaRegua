@@ -65,6 +65,7 @@ if ($barbeiroSelecionado) {
 
         $ocupado = false;
         $motivo  = null;
+        $status  = null;
 
         foreach ($agendamentos as $ag) {
 
@@ -94,11 +95,19 @@ if ($barbeiroSelecionado) {
         ];
     }
 }
+$servicos = Servico::where('barbearia_id', $barbeariaSelecionada->id ?? $usuario->barbearia_id)->get();
+
+$anosAgendamentos = Agendamento::where('barbearia_id', $barbeariaSelecionada->id ?? $usuario->barbearia_id)
+    ->selectRaw('DISTINCT EXTRACT(YEAR FROM data_hora)::int as ano')
+    ->orderBy('ano', 'desc')
+    ->pluck('ano');
+
 
         return view('pages.agendamentos.index', compact(
             'usuario', 'barbearias', 'barbeariaSelecionada',
             'barbeiros', 'barbeiroSelecionado',
-            'dataSelecionada', 'agendamentos', 'horariosDisponiveis'
+            'dataSelecionada', 'agendamentos', 'horariosDisponiveis','servicos',
+    'anosAgendamentos'
         ));
     }
 
@@ -317,4 +326,107 @@ $data_hora = $request->query('data_hora');
 
         return redirect()->route('agendamentos.index')->with('success', 'Agendamento deletado com sucesso!');
     }
+    public function relatorioLoad(Request $request)
+{
+    $usuario = Auth::user();
+    if ($usuario->tipo === 'cliente') {
+        abort(403, 'Acesso negado');
+    }
+
+    $page     = max(1, (int)$request->get('page', 1));
+    $perPage  = max(1, (int)$request->get('per_page', 20));
+
+    $barbeariaId = $request->get('barbearia_id');
+    $barbeiroId  = $request->get('barbeiro_id');
+
+    // Restrições por perfil
+    if ($usuario->tipo !== 'admin') {
+        $barbeariaId = $usuario->barbearia_id ?? $barbeariaId;
+    }
+
+    $query = Agendamento::query()
+        ->with(['cliente', 'servico', 'barbeiro'])
+        ->when($barbeariaId, fn($q) => $q->where('barbearia_id', $barbeariaId))
+        ->when($barbeiroId,  fn($q) => $q->where('barbeiro_id',  $barbeiroId));
+
+    // Filtros
+    if ($cliente = $request->get('cliente')) {
+        $query->whereHas('cliente', function ($q) use ($cliente) {
+            // Postgres: ILIKE p/ case-insensitive
+            $q->where('nome', 'ILIKE', '%' . $cliente . '%');
+        });
+    }
+
+    if ($servicoId = $request->get('servico_id')) {
+        $query->where('servico_id', $servicoId);
+    }
+
+    if ($barbeiroFiltro = $request->get('barbeiro_id')) {
+        $query->where('barbeiro_id', $barbeiroFiltro);
+    }
+    
+
+    if ($status = $request->get('status')) {
+        $query->where('status', $status);
+    }
+
+    if ($data = $request->get('data')) {
+        // data específica (YYYY-MM-DD)
+        $query->whereDate('data_hora', $data);
+    } else {
+        // Mês/Ano (se fornecidos)
+        if ($mes = $request->get('mes')) {
+            $query->whereMonth('data_hora', $mes);
+        }
+        if ($ano = $request->get('ano')) {
+            $query->whereYear('data_hora', $ano);
+        }
+    }
+
+    $query->orderBy('data_hora', 'desc')->orderBy('id', 'desc');
+
+    // Paginação simples por página (infinite scroll)
+    $agendamentos = $query->forPage($page, $perPage)->get();
+    $hasMore = $query->clone()->forPage($page + 1, $perPage)->exists();
+
+    // Renderiza parciais
+    $htmlTable = view('pages.agendamentos.partials.relatorio_rows', compact('agendamentos'))->render();
+    $htmlCards = view('pages.agendamentos.partials.relatorio_cards', compact('agendamentos'))->render();
+
+    return response()->json([
+        'html_table' => $htmlTable,
+        'html_cards' => $htmlCards,
+        'has_more'   => $hasMore,
+        'page'       => $page,
+    ]);
+}
+public function buscarClientes(Request $request)
+{
+    $usuario = Auth::user();
+
+    if (!$request->expectsJson()) {
+        abort(403);
+    }
+    
+
+    $termo = trim($request->get('q', ''));
+
+    if (strlen($termo) < 2) {
+        return response()->json([]);
+    }
+
+    $query = Usuario::query()
+        ->where('tipo', 'cliente')
+        ->where('nome', 'ILIKE', "%{$termo}%");
+
+    // restringir a barbearia para barbeiros e admins dentro do contexto
+    if ($usuario->tipo !== 'admin') {
+        $query->where('barbearia_id', $usuario->barbearia_id);
+    }
+
+    $clientes = $query->take(10)->get(['id', 'nome']);
+
+    return response()->json($clientes);
+}
+
 }

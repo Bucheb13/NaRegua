@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AgendamentoController;
+use App\Http\Controllers\BarbeariaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\ProfileController;
@@ -50,16 +51,23 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/agendamentos/{agendamento}/status', [AgendamentoController::class, 'atualizarStatus'])
     ->name('agendamentos.status'); 
 
+    Route::get('/agendamentos/relatorio/load', [AgendamentoController::class, 'relatorioLoad'])
+    ->name('agendamentos.relatorio.load');
+
+    Route::get('/agendamentos/clientes/search', [AgendamentoController::class, 'buscarClientes'])
+    ->name('agendamentos.clientes.search');
+
+    // Cadastro de Barbearias (somente admin)
+    Route::post('/barbearias', [BarbeariaController::class, 'store'])
+    ->name('barbearias.store');
+    Route::put('/barbearias/{barbearia}', [BarbeariaController::class, 'update'])
+        ->name('barbearias.update');
+        Route::delete('/barbearias/{barbearia}', [BarbeariaController::class, 'destroy'])
+    ->name('barbearias.destroy');
+
 
     // CRUD de vendas
     Route::resource('vendas', VendaController::class);
-
-    // CRUD de Barbearias dentro do Dashboard (admin)
-    Route::post('/dashboard', [DashboardController::class, 'storeBarbearia'])
-    ->name('dashboard.store');
-    Route::put('/dashboard/{barbearia}', [DashboardController::class, 'updateBarbearia'])->name('dashboard.update');
-    Route::delete('/dashboard/{barbearia}', [DashboardController::class, 'destroyBarbearia'])->name('dashboard.destroy');
-
     // Perfil do usuário
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -69,7 +69,10 @@ class DashboardController extends Controller
 
     // ===== Outros KPIs gerais
     $totalAgendamentos = (clone $baseAg)->count();
-    $agendamentosHoje  = (clone $baseAg)->whereDate('data_hora', now())->count();
+    $agendamentosHoje  = (clone $baseAg)
+    ->whereBetween('data_hora', [now()->startOfDay(), now()->endOfDay()])
+    ->count();
+
 
     $totalUsuarios = $barbeariaSelecionada
         ? $barbeariaSelecionada->usuarios()->count()
@@ -79,13 +82,16 @@ class DashboardController extends Controller
         ? round(($agendamentosHoje / $totalAgendamentos) * 100)
         : 0;
 
-    // ===== Próximos agendamentos (futuros)
-    $proximosAgendamentos = (clone $baseAg)
-        ->with(['cliente', 'servico'])
-        ->whereDate('data_hora', '>=', now())
-        ->orderBy('data_hora', 'asc')
-        ->limit(10)
-        ->get();
+   // ===== Próximos agendamentos (futuros)
+   $proximosAgendamentos = (clone $baseAg)
+   ->with(['cliente', 'servico'])
+   ->whereIn('status', ['agendado', 'pendente', 'concluido', 'cancelado'])
+   ->where('data_hora', '>=', now()->subHour())
+   ->orderBy('data_hora', 'asc')
+   ->limit(10)
+   ->get();
+
+
 
     // ==========================================================
     // ================== GRÁFICOS (ROLLING 12) ==================
@@ -198,93 +204,6 @@ class DashboardController extends Controller
         'proximosAgendamentos'
     ));
 }
-
-
-
-
-    /** ================= STORE BARBEARIA ================= */
-    public function storeBarbearia(Request $request)
-{
-    if (Auth::user()->tipo !== 'admin') abort(403);
-
-    $request->validate([
-        'nome'             => 'required|string|max:255',
-        'responsavel_nome' => 'nullable|string|max:255',
-        'cnpj'             => 'required|string|min:14',
-        'telefone'         => 'nullable|string|max:30',
-        'email'            => 'nullable|email',
-        'endereco'         => 'nullable|string|max:255',
-        'licenca_validade' => 'nullable|date',
-        'licenca_status'   => 'nullable|in:pendente,ativa,suspensa',
-        'logo'             => 'nullable|image|max:2048|mimes:jpg,jpeg,png,webp',
-    ]);
-
-    $payload = $request->only([
-        'nome', 'responsavel_nome', 'cnpj',
-        'telefone', 'email', 'endereco',
-        'licenca_validade', 'licenca_status'
-    ]);
-
-    // Default coerente
-    if (empty($payload['licenca_status'])) {
-        $payload['licenca_status'] = 'pendente';
-    }
-
-    // Upload opcional de logo
-    if ($request->hasFile('logo')) {
-        $payload['logo'] = $request->file('logo')->store('barbearias/logos', 'public');
-    }
-
-    Barbearia::create($payload);
-
-    return redirect()->route('dashboard')->with('closeModal', 'nova');
-
-}
-
-
-    public function updateBarbearia(Request $request, Barbearia $barbearia)
-    {
-        if (Auth::user()->tipo !== 'admin') abort(403);
-
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'responsavel_nome' => 'nullable|string|max:255',
-            'cnpj' => 'required|string|min:14',
-            'telefone' => 'nullable|string|max:20',
-            'email' => 'nullable|email',
-            'endereco' => 'nullable|string|max:255',
-            'licenca_validade' => 'nullable|date',
-            'logo' => 'nullable|image|max:2048|mimes:jpg,jpeg,png,webp',
-        ]);
-
-        $payload = $request->only([
-            'nome', 'responsavel_nome', 'cnpj',
-            'telefone', 'email', 'endereco',
-            'licenca_validade'
-        ]);
-
-        if ($request->hasFile('logo')) {
-            if ($barbearia->logo && Storage::disk('public')->exists($barbearia->logo)) {
-                Storage::disk('public')->delete($barbearia->logo);
-            }
-            $payload['logo'] = $request->file('logo')->store('barbearias/logos', 'public');
-        }
-
-        $barbearia->update($payload);
-
-        return redirect()->route('dashboard')
-            ->with('success', 'Barbearia atualizada com sucesso!');
-    }
-
-    public function destroyBarbearia(Barbearia $barbearia)
-    {
-        if (Auth::user()->tipo !== 'admin') abort(403);
-
-        $barbearia->delete();
-
-        return redirect()->route('dashboard')
-            ->with('success', 'Barbearia excluída com sucesso!');
-    }
 
     public function concluir(Agendamento $agendamento)
     {

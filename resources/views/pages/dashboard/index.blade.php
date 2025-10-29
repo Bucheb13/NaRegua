@@ -25,24 +25,78 @@
         </div>
 
         {{-- Filtro de Barbearia (admin) --}}
-        @if($usuario->tipo === 'admin')
-            <div class="bg-[#1a1410]/60 backdrop-blur-md border border-yellow-500/20 rounded-2xl p-6 shadow-lg">
-                <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 justify-between">
-                    <div class="flex-1">
-                        <label class="block text-sm text-yellow-300/80 mb-1">Selecionar Barbearia:</label>
-                        <select onchange="window.location='?barbearia_id=' + this.value"
-                                class="w-full bg-[#241b16]/60 border border-yellow-500/20 rounded-lg px-4 py-2.5 text-[#f5e6d3] focus:ring-1 focus:ring-yellow-500/30">
-                            <option value="">Todas as Barbearias</option>
-                            @foreach($barbearias as $b)
-                                <option value="{{ $b->id }}" {{ ($barbeariaSelecionada?->id ?? null) == $b->id ? 'selected' : '' }}>
-                                    {{ $b->nome }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
-        @endif
+@if($usuario->tipo === 'admin')
+<div 
+    x-data="{
+        open:false,
+        selecionadaId: {{ $barbeariaSelecionada?->id ?? 'null' }},
+        barbearias: [
+            @foreach($barbearias as $b)
+            {
+                id: {{ $b->id }},
+                nome: @js($b->nome),
+                logo: @js($b->logo ? Storage::url($b->logo) : null),
+                iniciais: @js(collect(explode(' ', trim($b->nome)))->filter()->map(fn($p) => mb_substr($p,0,1))->take(2)->implode('')),
+            },
+            @endforeach
+        ],
+        atual() {
+            return this.barbearias.find(b => b.id === this.selecionadaId) || null;
+        },
+        selecionar(id) {
+            this.selecionadaId = id;
+            this.open = false;
+            window.location = '?barbearia_id=' + (id ?? '');
+        }
+    }"
+    class="bg-[#1a1410]/60 backdrop-blur-md border border-yellow-500/20 rounded-2xl p-6 shadow-lg w-full md:w-auto relative z-[100]"
+>
+    <label class="block text-sm text-yellow-300/80 mb-2">Selecionar Barbearia:</label>
+
+    <!-- Botão -->
+    <button type="button"
+            @click="open = !open"
+            class="w-80 flex items-center justify-between gap-3 bg-[#241b16]/60 border border-yellow-500/30 rounded-xl px-4 py-3 text-left hover:border-yellow-400/40 transition relative z-30">
+        <div class="flex items-center gap-3">
+            <template x-if="atual() && atual().logo">
+                <img :src="atual().logo" class="w-7 h-7 rounded-full object-cover border border-yellow-500/30">
+            </template>
+            <template x-if="!atual() || !atual().logo">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-300 text-[#1a1410] text-xs font-extrabold flex items-center justify-center border border-yellow-500/30"
+                     x-text="atual() ? atual().iniciais : 'RB'"></div>
+            </template>
+            <span class="text-[#f5e6d3] text-sm" x-text="atual() ? atual().nome : 'Todas as Barbearias'"></span>
+        </div>
+        <i class="ph ph-caret-down text-yellow-300/80"></i>
+    </button>
+
+    <!-- DROPDOWN - agora flutuante -->
+    <div x-show="open" x-transition.opacity x-cloak
+         class="absolute z-50 w-80 max-h-72 overflow-auto rounded-xl border border-yellow-500/30 bg-[#1a1410] shadow-2xl mt-1">
+        <!-- Todas -->
+        <button type="button" @click="selecionar(null)"
+                class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-yellow-500/10">
+            <div class="w-7 h-7 rounded-full bg-yellow-500/20 border border-yellow-500/30"></div>
+            <span class="text-sm text-yellow-200/90">Todas as Barbearias</span>
+        </button>
+        <div class="border-t border-yellow-500/10 my-1"></div>
+        <!-- Lista -->
+        <template x-for="b in barbearias" :key="b.id">
+            <button type="button" @click="selecionar(b.id)"
+                    class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-yellow-500/10">
+                <template x-if="b.logo">
+                    <img :src="b.logo" class="w-7 h-7 rounded-full object-cover border border-yellow-500/30">
+                </template>
+                <template x-if="!b.logo">
+                    <div class="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-300 text-[#1a1410] text-xs font-extrabold flex items-center justify-center border border-yellow-500/30"
+                         x-text="b.iniciais"></div>
+                </template>
+                <span class="text-sm text-yellow-100/95" x-text="b.nome"></span>
+            </button>
+        </template>
+    </div>
+</div>
+@endif
     </div>
 
     {{-- CARDS PRINCIPAIS --}}
@@ -79,133 +133,202 @@
     <div class="bg-[#1a1410]/50 backdrop-blur-md border border-yellow-500/20 rounded-2xl p-6 shadow-lg">
         <h3 class="text-xl font-semibold text-yellow-500 mb-4">Próximos Agendamentos</h3>
         <div class="space-y-4">
+            @php
+    function formatarDuracao($minutos) {
+        $h = floor($minutos / 60);
+        $m = $minutos % 60;
+        if ($h > 0 && $m > 0) return "{$h}h {$m}min";
+        if ($h > 0) return "{$h}h";
+        return "{$m}min";
+    }
+@endphp
+
             @forelse($proximosAgendamentos as $ag)
-                <div class="relative p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-yellow-500/20 
-                            shadow-[0_0_18px_rgba(255,199,44,0.08)] hover:shadow-[0_0_35px_rgba(255,199,44,0.35)]
-                            transition-all duration-500 flex flex-col sm:flex-row items-center justify-between gap-6">
+    @php
+        $nomeCli = $ag->cliente?->nome ?? 'Cliente';
+        $iniciais = collect(explode(' ', trim($nomeCli)))->filter()->map(fn($p) => mb_substr($p,0,1))->take(2)->implode('');
+        $telefone = preg_replace('/\D/', '', $ag->cliente?->telefone ?? '');
+        $iso = \Carbon\Carbon::parse($ag->data_hora)->toIso8601String();
+    @endphp
 
-                    {{-- Bloco Esquerdo (Ícone + Info) --}}
-                    <div class="flex items-center gap-4 w-full sm:w-auto justify-center">
-                        <div class="text-4xl text-yellow-400/90">
-                            <i class="ph ph-calendar-check"></i>
-                        </div>
+    <div 
+        x-data="agCard({data: '{{ $iso }}', status: '{{ $ag->status }}'})"
+        class="flex items-center justify-between gap-6 p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-yellow-500/20 shadow-[0_0_18px_rgba(255,199,44,0.08)] hover:shadow-[0_0_30px_rgba(255,199,44,0.28)] transition-all duration-500"
+    >
 
-                        <div class="text-center sm:text-left">
-                            <div class="text-lg font-semibold text-yellow-300">
-                                {{ $ag->cliente?->nome ?? 'Cliente não informado' }}
-                            </div>
-                            <div class="text-sm text-yellow-200/70 mt-1">
-                                {{ \Carbon\Carbon::parse($ag->data_hora)->format('d/m/Y H:i') }}
-                                • {{ $ag->servico?->nome ?? 'Serviço' }}
-                            </div>
-
-                            {{-- STATUS --}}
-                            <div class="mt-2 text-xs font-semibold flex justify-center sm:justify-start">
-                                @if($ag->status === 'agendado' || $ag->status === 'pendente')
-                                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg">Pendente</span>
-                                @elseif($ag->status === 'concluido')
-                                    <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded-lg">Concluído</span>
-                                @elseif($ag->status === 'cancelado')
-                                    <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded-lg">Cancelado</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Botões --}}
-                    @if($ag->status === 'agendado' || $ag->status === 'pendente')
-                        <div class="flex flex-col sm:flex-row gap-2 justify-center">
-                            <form method="POST" action="{{ route('agendamentos.confirmar', $ag->id) }}">
-                                @csrf
-                                <button
-                                    class="px-4 py-2 text-xs rounded-lg bg-green-600/80 hover:bg-green-500 transition font-semibold">
-                                    Confirmar
-                                </button>
-                            </form>
-
-                            <form method="POST" action="{{ route('agendamentos.cancelar', $ag->id) }}">
-                                @csrf
-                                <button
-                                    class="px-4 py-2 text-xs rounded-lg bg-red-600/80 hover:bg-red-500 transition font-semibold">
-                                    Cancelar
-                                </button>
-                            </form>
-                        </div>
+        {{-- ESQUERDA --}}
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-300 text-[#1a1410] flex items-center justify-center font-extrabold border border-yellow-500/30">
+                {{ $iniciais }}
+            </div>
+            <div class="flex flex-col leading-tight">
+                <span class="font-semibold text-yellow-300">{{ $nomeCli }}</span>
+                <span class="text-xs text-yellow-200/70">
+                    {{ $ag->servico?->nome ?? 'Serviço' }}
+                    @if($ag->servico?->duracao_minutos)
+                        • {{ formatarDuracao($ag->servico->duracao_minutos) }}
                     @endif
+                </span>
+                
+            </div>
+        </div>
+
+        {{-- MEIO --}}
+        <div class="flex flex-col items-center text-center text-xs min-w-[120px]">
+            <div class="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-200"
+                 x-text="labelTempo"></div>
+            <div class="mt-1 flex items-center gap-1"
+                 :class="classeStatus">
+                <i :class="iconeStatus"></i>
+                <span x-text="textoStatus"></span>
+            </div>
+        </div>
+
+        {{-- DIREITA --}}
+        <div class="flex items-center gap-2">
+
+            {{-- WhatsApp --}}
+            <div x-data="tooltip('📞 Conversar com cliente')" @mouseenter="toggle(true)" @mouseleave="toggle(false)" class="relative">
+                <a href="https://wa.me/55{{ $telefone }}" target="_blank"
+                   class="p-2 rounded-lg bg-green-600/80 hover:bg-green-500 transition flex items-center justify-center text-xs font-semibold">
+                   <i class="ph ph-whatsapp-logo text-lg"></i>
+                </a>
+                <div x-show="show" x-transition
+                     class="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-xl bg-[#1a1410]/90 border border-yellow-500/30 text-yellow-300 text-[10px] shadow-lg">
+                    {{ '📞 Conversar' }}
+                    <div class="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1a1410]/90 rotate-45 border-r border-b border-yellow-500/30"></div>
                 </div>
-            @empty
-                <div class="text-yellow-300/70 text-center">Nenhum agendamento futuro.</div>
-            @endforelse
+            </div>
+
+            {{-- BOTÕES SE NAO CONCLUIDO/CANCELADO --}}
+            @if($ag->status === 'agendado' || $ag->status === 'pendente')
+                {{-- Confirmar --}}
+                <div x-data="tooltip('✅ Concluir atendimento')" @mouseenter="toggle(true)" @mouseleave="toggle(false)" class="relative">
+                    <form method="POST" action="{{ route('agendamentos.confirmar', $ag->id) }}">
+                        @csrf
+                        <button class="p-2 rounded-lg bg-green-700/70 hover:bg-green-600 flex items-center justify-center">
+                            <i class="ph ph-check text-green-200 text-sm"></i>
+                        </button>
+                    </form>
+                    <div x-show="show" x-transition
+                         class="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-xl bg-[#1a1410]/90 border border-yellow-500/30 text-yellow-300 text-[10px] shadow-lg">
+                        ✅ Concluir
+                        <div class="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1a1410]/90 rotate-45 border-r border-b border-yellow-500/30"></div>
+                    </div>
+                </div>
+
+                {{-- Cancelar --}}
+                <div x-data="tooltip('❌ Cancelar agendamento')" @mouseenter="toggle(true)" @mouseleave="toggle(false)" class="relative">
+                    <form method="POST" action="{{ route('agendamentos.cancelar', $ag->id) }}">
+                        @csrf
+                        <button class="p-2 rounded-lg bg-red-700/70 hover:bg-red-600 flex items-center justify-center">
+                            <i class="ph ph-x text-red-200 text-sm"></i>
+                        </button>
+                    </form>
+                    <div x-show="show" x-transition
+                         class="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-xl bg-[#1a1410]/90 border border-yellow-500/30 text-yellow-300 text-[10px] shadow-lg">
+                        ❌ Cancelar
+                        <div class="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1a1410]/90 rotate-45 border-r border-b border-yellow-500/30"></div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+@empty
+    <div class="text-yellow-300/70 text-center">Nenhum agendamento futuro.</div>
+@endforelse
+
+
+
         </div>
     </div>
 
     {{-- ========================= GRÁFICOS (TABS) ========================= --}}
-    <div class="w-full bg-[#1a1410]/60 border border-yellow-500/20 backdrop-blur-md p-6 rounded-2xl shadow-lg">
+<div class="w-full rounded-2xl shadow-2xl border border-yellow-400/30 bg-[#1a1410]/50 backdrop-blur-2xl
+            ring-1 ring-yellow-400/20 overflow-hidden">
+    {{-- Tabs header --}}
+    <div class="flex items-center justify-between gap-4 flex-wrap px-6 pt-6">
+        <div class="inline-flex items-center rounded-full bg-[#241b16]/70 border border-yellow-500/20 p-1 shadow-inner shadow-yellow-500/10">
+            <button type="button" data-tab-target="#tab-receita"
+                class="tab-pill active px-4 py-2 text-sm rounded-full transition
+                       bg-yellow-500/20 text-yellow-300 border border-yellow-400/30 shadow-inner">
+                Receita Mensal
+            </button>
+            <button type="button" data-tab-target="#tab-agenda"
+                class="tab-pill px-4 py-2 text-sm rounded-full transition hover:bg-yellow-500/10 text-yellow-200/80">
+                Agendamentos
+            </button>
+        </div>
+        <span class="text-[12px] text-yellow-300/60 pr-6">Dica: use as abas para alternar entre os gráficos</span>
+    </div>
 
-        {{-- Tabs - estilo pill premium --}}
-        <div class="flex items-center justify-between gap-4 flex-wrap">
-            <div class="inline-flex items-center rounded-full bg-[#241b16]/70 border border-yellow-500/20 p-1">
-                <button
-                    type="button"
-                    data-tab-target="#tab-receita"
-                    class="tab-pill active px-4 py-2 text-sm rounded-full transition
-                           bg-yellow-500/20 text-yellow-300 border border-yellow-400/30 shadow-inner"
-                >
-                    Receita Mensal
-                </button>
-                <button
-                    type="button"
-                    data-tab-target="#tab-agenda"
-                    class="tab-pill px-4 py-2 text-sm rounded-full transition
-                           hover:bg-yellow-500/10 text-yellow-200/80"
-                >
-                    Agendamentos
-                </button>
+    {{-- Conteúdo das abas --}}
+    <div class="mt-5 space-y-6 px-6 pb-6">
+        <div id="tab-receita" class="tab-pane block">
+            <h3 class="text-lg font-bold text-yellow-400 mb-3 flex items-center gap-2">
+                <i class="ph ph-currency-circle-dollar text-yellow-400 text-xl"></i>
+                Receita mensal
+            </h3>
+            <div class="relative w-full rounded-xl border border-yellow-500/20 bg-white/5 backdrop-blur-xl shadow-lg p-3" style="height: 360px;">
+                <canvas id="receitasChart"></canvas>
             </div>
-
-            <span class="text-[12px] text-yellow-300/60">Dica: use as abas para alternar entre os gráficos</span>
+            <p class="mt-3 text-xs text-yellow-300/70">
+                Barra: <span class="font-semibold">Produtos</span> •
+                Linhas: <span class="font-semibold">Serviços (concluídos)</span> e <span class="font-semibold">Total</span>
+            </p>
         </div>
 
-        {{-- Conteúdo das abas --}}
-        <div class="mt-5 space-y-6">
-
-            {{-- ABA: Receita --}}
-            <div id="tab-receita" class="tab-pane block">
-                <h3 class="text-lg font-bold text-yellow-400 mb-3 flex items-center gap-2">
-                    <i class="ph ph-currency-circle-dollar text-yellow-400 text-xl"></i>
-                    Receita mensal
-                </h3>
-
-                <div class="relative w-full" style="height: 340px;">
-                    <canvas id="receitasChart"></canvas>
-                </div>
-
-                <p class="mt-3 text-xs text-yellow-300/70">
-                    Barra: <span class="font-semibold">Produtos</span> •
-                    Linhas: <span class="font-semibold">Serviços (concluídos)</span> e <span class="font-semibold">Total</span>
-                </p>
+        <div id="tab-agenda" class="tab-pane hidden">
+            <h3 class="text-lg font-bold text-yellow-400 mb-3 flex items-center gap-2">
+                <i class="ph ph-calendar-blank text-yellow-400 text-xl"></i>
+                Agendamentos por Status (empilhado)
+            </h3>
+            <div class="relative w-full rounded-xl border border-yellow-500/20 bg-white/5 backdrop-blur-xl shadow-lg p-3" style="height: 360px;">
+                <canvas id="agendamentosChart"></canvas>
             </div>
-
-            {{-- ABA: Agendamentos --}}
-            <div id="tab-agenda" class="tab-pane hidden">
-                <h3 class="text-lg font-bold text-yellow-400 mb-3 flex items-center gap-2">
-                    <i class="ph ph-calendar-blank text-yellow-400 text-xl"></i>
-                    Agendamentos por Status (empilhado)
-                </h3>
-
-                <div class="relative w-full" style="height: 340px;">
-                    <canvas id="agendamentosChart"></canvas>
-                </div>
-            </div>
-
         </div>
     </div>
-    {{-- ======================= FIM GRÁFICOS (TABS) ======================= --}}
+</div>
+{{-- ======================= FIM GRÁFICOS (TABS) ======================= --}}
+
 
 </div> {{-- Fim container principal --}}
 
 {{-- Chart.js 4 --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+    /** Contagem regressiva detalhada e dinâmica (atualiza a cada 30s) */
+    (function(){
+        function formatDiff(ms) {
+            if (ms <= 0) return 'Começando agora';
+            const totalSec = Math.floor(ms / 1000);
+            const days = Math.floor(totalSec / 86400);
+            const hours = Math.floor((totalSec % 86400) / 3600);
+            const mins = Math.floor((totalSec % 3600) / 60);
+    
+            const parts = [];
+            if (days) parts.push(days + (days === 1 ? ' dia' : ' dias'));
+            if (hours) parts.push(hours + (hours === 1 ? ' h' : ' h'));
+            if (mins && days === 0) parts.push(mins + (mins === 1 ? ' min' : ' min'));
+    
+            return 'Faltam ' + (parts.length ? parts.join(' e ') : 'menos de 1 min');
+        }
+    
+        function updateCountdowns() {
+            document.querySelectorAll('[data-countdown][data-when]').forEach(el => {
+                const when = new Date(el.getAttribute('data-when')).getTime();
+                const now  = Date.now();
+                const diff = when - now;
+                el.textContent = diff > 0 ? formatDiff(diff) : 'Já ocorreu';
+            });
+        }
+    
+        updateCountdowns();
+        setInterval(updateCountdowns, 30 * 1000);
+    })();
+    </script>
+    
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -453,4 +576,76 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 });
 </script>
+
+<script>
+    function agCard({data, status}) {
+        return {
+            dataHora: new Date(data),
+            status,
+            labelTempo: '',
+            textoStatus: '',
+            iconeStatus: '',
+            classeStatus: '',
+            init() {
+                this.atualizar();
+                setInterval(() => this.atualizar(), 60000);
+            },
+            atualizar() {
+                const agora = new Date();
+                const diffMs = this.dataHora - agora;
+                const diffAbs = Math.abs(diffMs);
+                const diffMin = Math.floor(diffAbs / 60000);
+                const diffH   = Math.floor(diffMin / 60);
+                const diffMinRest = diffMin % 60;
+    
+                const tempoFmt = (diffH > 0 ? `${diffH}h ` : '') + `${diffMinRest}min`;
+    
+                // FUTURO
+                if (diffMs > 0) {
+                    this.labelTempo = `Faltam ${tempoFmt}`;
+                    this.textoStatus = (this.status === 'concluido') ? 'Concluído' :
+                                       (this.status === 'cancelado') ? 'Cancelado' :
+                                       'Agendado';
+                }
+                // PASSADO DENTRO DA JANELA (2h)
+                else if (diffAbs <= 2 * 60 * 60 * 1000) {
+                    if (this.status === 'concluido') {
+                        this.labelTempo = `Concluído há ${tempoFmt}`;
+                    } else if (this.status === 'cancelado') {
+                        this.labelTempo = `Cancelado há ${tempoFmt}`;
+                    } else {
+                        this.labelTempo = `Atrasado há ${tempoFmt}`;
+                    }
+                    this.textoStatus = (this.status === 'concluido') ? 'Concluído' :
+                                       (this.status === 'cancelado') ? 'Cancelado' :
+                                       'Atrasado';
+                }
+    
+                // DEFINE ICONE / CORES
+                if (this.textoStatus === 'Concluído') {
+                    this.iconeStatus = 'ph ph-check-circle text-green-400';
+                    this.classeStatus = 'text-green-400';
+                } else if (this.textoStatus === 'Cancelado') {
+                    this.iconeStatus = 'ph ph-x-circle text-red-400';
+                    this.classeStatus = 'text-red-400';
+                } else {
+                    this.iconeStatus = 'ph ph-clock text-yellow-300';
+                    this.classeStatus = 'text-yellow-200';
+                }
+            }
+        }
+    }
+    </script>
+
+<script>
+    function tooltip(text) {
+        return {
+            show: false,
+            text,
+            toggle(v = true) { this.show = v; }
+        }
+    }
+    </script>
+    
+    
 @endsection
