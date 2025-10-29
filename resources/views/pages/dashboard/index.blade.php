@@ -49,7 +49,7 @@
             window.location = '?barbearia_id=' + (id ?? '');
         }
     }"
-    class="bg-[#1a1410]/60 backdrop-blur-md border border-yellow-500/20 rounded-2xl p-6 shadow-lg w-full md:w-auto relative z-[50]"
+    class="bg-[#1a1410]/60 backdrop-blur-md border border-yellow-500/20 rounded-2xl p-6 shadow-lg w-full md:w-auto relative z-[30]"
 >
     <label class="block text-sm text-yellow-300/80 mb-2">Selecionar Barbearia:</label>
 
