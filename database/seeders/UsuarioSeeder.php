@@ -13,11 +13,12 @@ class UsuarioSeeder extends Seeder
         // Admin
         Usuario::create([
             'barbearia_id' => 1,
-            'nome' => 'BUcheb Admin',
+            'nome' => 'Bucheb Admin',
             'email' => 'admin@naregua.com',
-            'senha' => Hash::make('143964'),
+            'senha' => Hash::make('123456'),
             'tipo' => 'admin',
             'telefone' => '11999999999',
+            'status' => 'ativo',
         ]);
 
         // Barbeiros
@@ -28,6 +29,8 @@ class UsuarioSeeder extends Seeder
             'senha' => Hash::make('123456'),
             'tipo' => 'barbeiro',
             'telefone' => '11988888888',
+            'especialidade' => 'Cortes Masculinos',
+            'status' => 'ativo',
         ]);
 
         Usuario::create([
@@ -37,6 +40,8 @@ class UsuarioSeeder extends Seeder
             'senha' => Hash::make('123456'),
             'tipo' => 'barbeiro',
             'telefone' => '11977777777',
+            'especialidade' => 'Barba / Navalha',
+            'status' => 'ativo',
         ]);
 
         // Clientes
@@ -47,6 +52,7 @@ class UsuarioSeeder extends Seeder
             'senha' => Hash::make('123456'),
             'tipo' => 'cliente',
             'telefone' => '11966666666',
+            'status' => 'ativo',
         ]);
     }
 }
