@@ -156,7 +156,7 @@
           <a href="{{ route('produtos.index') }}"
              class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 hover:bg-yellow-400/10 hover:text-yellow-200
              @if(request()->routeIs('produtos.*')) bg-yellow-400/20 text-yellow-100 shadow-[0_0_14px_rgba(212,175,55,0.22)] @endif">
-              <i class="ph ph-bottle text-lg"></i>
+              <i class="ph ph-shopping-bag text-lg"></i>
               <span>Produtos</span>
           </a>
           <a href="{{ route('usuarios.index') }}"
