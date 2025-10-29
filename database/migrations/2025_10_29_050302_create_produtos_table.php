@@ -12,16 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('produtos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('barbearia_id')->constrained('barbearias')->cascadeOnDelete();
+            $table->bigIncrements('id');
+            $table->bigInteger('barbearia_id');
             $table->string('nome');
             $table->text('descricao')->nullable();
-            $table->decimal('preco', 10, 2);
+            $table->decimal('preco', 10);
             $table->integer('quantidade_estoque')->default(0);
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barbearias', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome');
-            $table->string('telefone')->nullable();
-            $table->string('email')->nullable();
-            $table->string('endereco')->nullable();
+        Schema::create('vendas', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->bigInteger('barbearia_id');
+            $table->bigInteger('cliente_id')->nullable();
+            $table->decimal('valor_total', 10)->default(0);
+            $table->timestamp('data_venda')->useCurrent();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('barbearias');
+        Schema::dropIfExists('vendas');
     }
 };

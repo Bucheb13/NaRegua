@@ -12,18 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendas_itens', function (Blueprint $table) {
-            $table->id();
-$table->foreignId('venda_id')->constrained('vendas')->cascadeOnDelete();
-$table->foreignId('produto_id')
-      ->constrained()
-      ->restrictOnDelete();
-$table->integer('quantidade')->default(1);
-$table->decimal('preco_unitario', 10, 2);
-$table->decimal('subtotal', 10, 2);
-$table->timestamps();
-$table->index('venda_id');
-
-
+            $table->bigIncrements('id');
+            $table->bigInteger('venda_id')->index();
+            $table->bigInteger('produto_id');
+            $table->integer('quantidade')->default(1);
+            $table->decimal('preco_unitario', 10);
+            $table->decimal('subtotal', 10);
+            $table->timestamps();
         });
     }
 

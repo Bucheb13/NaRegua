@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('agendamentos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('barbearia_id')->constrained('barbearias')->cascadeOnDelete();
-            $table->foreignId('cliente_id')->constrained('clientes')->cascadeOnDelete();
-            $table->foreignId('barbeiro_id')->constrained('barbeiros')->cascadeOnDelete();
-            $table->foreignId('servico_id')->constrained('servicos')->cascadeOnDelete();
+            $table->bigIncrements('id');
+            $table->bigInteger('barbearia_id');
+            $table->bigInteger('cliente_id');
+            $table->bigInteger('barbeiro_id');
+            $table->bigInteger('servico_id');
             $table->timestamp('data_hora');
-            $table->enum('status', ['agendado','concluido','cancelado'])->default('agendado');
+            $table->enum('status', ['agendado', 'concluido', 'cancelado'])->default('agendado');
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.

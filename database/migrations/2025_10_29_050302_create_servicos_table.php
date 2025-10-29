@@ -12,16 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('servicos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('barbearia_id')->constrained('barbearias')->cascadeOnDelete();
+            $table->bigIncrements('id');
+            $table->bigInteger('barbearia_id');
             $table->string('nome');
             $table->text('descricao')->nullable();
-            $table->decimal('preco', 10, 2);
-            $table->integer('duracao_minutos'); // duração estimada do serviço
+            $table->decimal('preco', 10);
+            $table->integer('duracao_minutos');
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.

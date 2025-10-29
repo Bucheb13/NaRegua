@@ -12,15 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id(); // Chave primária
-            $table->foreignId('barbearia_id')->nullable()->constrained('barbearias')->nullOnDelete(); 
-            // FK opcional para barbearia, permite clientes externos
+            $table->bigIncrements('id');
+            $table->bigInteger('barbearia_id')->nullable();
             $table->string('nome');
             $table->string('email')->unique();
-            $table->string('senha'); // armazenaremos hash da senha
-            $table->enum('tipo', ['admin','barbeiro','cliente']);
+            $table->string('senha');
+            $table->enum('tipo', ['admin', 'barbeiro', 'cliente']);
             $table->string('telefone')->nullable();
-            $table->timestamps(); // created_at e updated_at
+            $table->timestamps();
+            $table->string('especialidade')->nullable();
+            $table->string('status', 20)->nullable()->default('ativo');
         });
     }
 
