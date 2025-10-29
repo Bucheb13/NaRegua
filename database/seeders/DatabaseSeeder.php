@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             ServicoSeeder::class,
             ProdutoSeeder::class,
-            AgendamentoSeeder::class,
         ]);
     }
     
