@@ -59,6 +59,8 @@
 
 <body
   x-data="{
+      openSidebar: window.innerWidth >= 768,
+
       // MODALs
       openNovaBarbearia: false,
       openEditBarbearia: false,
@@ -74,19 +76,17 @@
 
       // Logo live (topo)
       barbeariaLogoUrl: {{ $logoUrlInit ? "'$logoUrlInit'" : 'null' }},
-      barbeariaLogoTemp: null,   // preview temporário
+      barbeariaLogoTemp: null,
 
-        // Preview temporario do logo na criação
+      // Preview temporário criação
       previewLogo: null,
 
-      // Ao fechar modal de edição, reverter o preview do logo
+      // Fechar modal edição
       onCloseEdit() {
         this.openEditBarbearia = false;
-        // Reverter logo do topo se havia preview temporário
         this.barbeariaLogoTemp = null;
       },
 
-      // src da imagem no topo (usa temp se houver; senão original)
       logoSrc() {
         return this.barbeariaLogoTemp ?? this.barbeariaLogoUrl;
       }
@@ -96,12 +96,11 @@
 
 
 
+
 <!-- Sidebar -->
 <aside
-    x-data="{ open: window.innerWidth >= 768 }"
-    x-show="open || window.innerWidth >= 768"
-    @click.outside="if (window.innerWidth < 768) open = false"
-    @keydown.window.escape="if (window.innerWidth < 768) open = false"
+    x-show="openSidebar"
+    @click.outside="if (window.innerWidth < 768) openSidebar = false"
     id="sidebar"
     class="fixed inset-y-0 left-0 z-40 w-72 bg-[#1a1410]/70 backdrop-blur-xl border-r border-yellow-500/20 text-yellow-200 transform transition-all duration-300 overflow-y-auto
            md:static md:flex md:flex-col md:translate-x-0"
@@ -112,6 +111,7 @@
     x-transition:leave-start="translate-x-0"
     x-transition:leave-end="-translate-x-full"
 >
+
 
 
 
@@ -195,10 +195,9 @@
       <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/3 border-b border-yellow-500/5 px-6 py-3 flex justify-between items-center">
         <div class="flex items-center gap-3">
             {{-- Mobile --}}
-            <button class="md:hidden text-yellow-300" @click="open = true">
+            <button class="md:hidden text-yellow-300" @click="openSidebar = true">
               <i class="ph ph-list text-2xl"></i>
-          </button>
-          
+          </button>      
         </div>
     
         <div class="flex items-center gap-4">
