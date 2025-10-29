@@ -14,12 +14,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BarbeariaSeeder::class,
             UsuarioSeeder::class,
-            BarbeiroSeeder::class,
-            ClienteSeeder::class,
             ServicoSeeder::class,
             ProdutoSeeder::class,
             AgendamentoSeeder::class,
-            VendaSeeder::class,
         ]);
     }
     
