@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Vendas')
+
 @section('content')
 <div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
 

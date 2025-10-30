@@ -6,7 +6,6 @@
     <title>@yield('title') - NaRegua</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
 </head>
 
 <body class="h-full min-h-screen flex items-center justify-center relative overflow-hidden bg-transparent">

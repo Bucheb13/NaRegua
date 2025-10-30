@@ -7,7 +7,8 @@
 
         <title>NaRegua - @yield('title')</title>
     
-        
+        <link rel="icon" type="image/png" href="{{ asset('logoNaRegua.png') }}">
+
         
         {{-- Chart.js --}}
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
