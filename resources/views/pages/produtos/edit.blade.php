@@ -15,14 +15,17 @@
 }
 </style>
 
-<div class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3] flex justify-center">
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10 flex justify-center">
     <div class="w-full max-w-2xl">
 
         {{-- Cabeçalho --}}
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-extrabold bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
-                Editar Produto
-            </h1>
+            <h1 class="text-4xl font-orbitron tracking-wide inline-block
+           bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400
+           bg-clip-text text-transparent">
+  Editar Produto
+</h1>
+
 
             <a href="{{ route('produtos.index') }}"
                class="px-5 py-2 rounded-lg bg-red-600/60 hover:bg-red-600/80

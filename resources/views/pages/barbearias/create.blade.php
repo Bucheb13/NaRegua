@@ -3,7 +3,7 @@
 @section('title', 'Nova Barbearia')
 
 @section('content')
-<div class="p-6">
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
 
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-[#5A3825]">Nova Barbearia</h1>

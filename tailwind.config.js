@@ -23,6 +23,9 @@ export default {
             },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                poppins: ['Poppins', 'sans-serif'],
+                orbitron: ['Orbitron', 'sans-serif'],
+                cinzel: ['"Cinzel Decorative"', 'serif'],
             },
             borderRadius: {
                 xl: '1rem',

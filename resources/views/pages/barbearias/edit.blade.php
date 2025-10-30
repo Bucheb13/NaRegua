@@ -3,8 +3,7 @@
 @section('title', 'Editar Barbearia')
 
 @section('content')
-<div class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3]">
-
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-300 bg-clip-text text-transparent">
             Editar Barbearia

@@ -3,13 +3,15 @@
 @section('title', 'Produtos')
 
 @section('content')
-<div class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3] space-y-8">
-
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
     {{-- Cabeçalho --}}
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-extrabold bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
-            Produtos
-        </h1>
+        <h1 class="text-4xl font-orbitron tracking-wide inline-block
+           bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400
+           bg-clip-text text-transparent">
+  Produtos
+</h1>
+
 
         @if($usuario->tipo !== 'cliente')
             <a href="{{ route('produtos.create') }}"
@@ -22,7 +24,7 @@
 
    {{-- Filtro admin --}}
    @if($usuario->tipo === 'admin')
-   <div class="bg-[#1a1410]/40 border border-yellow-500/15 rounded-md p-3 w-full md:w-1/3">
+   <div class="bg-[#1a1410]/50 border border-yellow-500/20 rounded-xl p-4 backdrop-blur-md w-fit">
        <label class="text-sm text-yellow-200/80 mb-1 block">Filtrar por Barbearia:</label>
        <select class="w-full bg-[#241b16]/50 border border-yellow-500/20 rounded-sm px-3 py-2 text-[#f5e6d3]
                       focus:ring-1 focus:ring-yellow-500/30 focus:outline-none"
@@ -70,7 +72,7 @@
 
                     {{-- Preço + Ações --}}
                     <div class="text-right">
-                        <div class="text-lg font-bold text-yellow-400">
+                        <div class="ph ph-currency-dollar-simple text-base text-lg font-bold text-yellow-400">
                             R$ {{ number_format($produto->preco, 2, ',', '.') }}
                         </div>
 

@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6 space-y-6">
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
 
     {{-- Título da página --}}
-    <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-200 tracking-tight flex items-center gap-3">
-        <i class="ph ph-shopping-cart-simple text-yellow-300/90 text-4xl"></i>
-        Vendas
-    </h1>
+    <h1 class="text-4xl font-orbitron tracking-wide inline-block
+    bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400
+    bg-clip-text text-transparent">
+Vendas
+</h1>
+
 
     {{-- Mensagens --}}
     @if(session('success'))

@@ -3,18 +3,17 @@
 @section('title', 'Agendamentos')
 
 @section('content')
-<div
+<div 
   x-data="{
     // UI
     relatorioOpen: false,
 
     // Endpoint AJAX
-    endpoint: '{{ url('/agendamentos/relatorio/load') }}',
-
+    endpoint: 'http://127.0.0.1:8000/agendamentos/relatorio/load',
 
     // IDs já existentes na página (se não existirem, ficam vazios)
-    barbeiroId: '{{ $barbeiroSelecionado->id ?? '' }}',
-    barbeariaId: '{{ $barbeariaSelecionada->id ?? '' }}',
+    barbeiroId: '',
+    barbeariaId: '3',
 
     // Paginação
     page: 1,
@@ -25,7 +24,7 @@
     // Filtros (ligados aos x-model dos inputs do modal)
     filtroCliente: '',
     openCliente: false,
-resultadosCliente: [],
+    resultadosCliente: [],
     filtroServico: '',
     filtroBarbeiro: '',
     filtroStatus: '',
@@ -48,16 +47,16 @@ resultadosCliente: [],
     },
 
     limparFiltros() {
-    this.filtroCliente = '';
-    this.resultadosCliente = [];
-    this.filtroServico = '';
-    this.filtroStatus = '';
-    this.filtroData = '';
-    this.filtroMes = '';
-    this.filtroAno = '';
-    this.filtroBarbeiro = '';
-    this.aplicarFiltros();
-},
+      this.filtroCliente = '';
+      this.resultadosCliente = [];
+      this.filtroServico = '';
+      this.filtroStatus = '';
+      this.filtroData = '';
+      this.filtroMes = '';
+      this.filtroAno = '';
+      this.filtroBarbeiro = '';
+      this.aplicarFiltros();
+    },
 
     resetList() {
       this.page = 1;
@@ -94,7 +93,6 @@ resultadosCliente: [],
 
       const json = await resp.json();
 
-      // Insere os blocos de resultado nas respectivas áreas
       if (this.$refs.tbodyResultados && json.html_table) {
         this.$refs.tbodyResultados.insertAdjacentHTML('beforeend', json.html_table);
       }
@@ -115,42 +113,44 @@ resultadosCliente: [],
         if (nearBottom) this.fetchPage();
       };
     },
+
     resultadoTimeout: null,
 
-async buscarClientes() {
-        clearTimeout(this.resultadoTimeout);
-        this.resultadoTimeout = setTimeout(async () => {
-            if (this.filtroCliente.length < 2) {
-                this.resultadosCliente = [];
-                return;
-            }
-            const resp = await fetch(`{{ route('agendamentos.clientes.search') }}?q=${this.filtroCliente}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                }
-            });
-            if (!resp.ok) return;
-            const data = await resp.json();
-            this.resultadosCliente = data;
-        }, 300);
+    async buscarClientes() {
+      clearTimeout(this.resultadoTimeout);
+      this.resultadoTimeout = setTimeout(async () => {
+        if (this.filtroCliente.length < 2) {
+          this.resultadosCliente = [];
+          return;
+        }
+        const resp = await fetch(`http://127.0.0.1:8000/agendamentos/clientes/search?q=${this.filtroCliente}`, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+          }
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        this.resultadosCliente = data;
+      }, 300);
     },
 
     selecionarCliente(cliente) {
-        this.filtroCliente = cliente.nome;
-        this.resultadosCliente = [];
-        this.openCliente = false;
-},
-
+      this.filtroCliente = cliente.nome;
+      this.resultadosCliente = [];
+      this.openCliente = false;
+    },
   }"
-  class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3] space-y-10"
->
+
+class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
+
 
 
 
     {{-- TÍTULO --}}
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-extrabold bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
+        <h1 class="text-4xl  font-orbitron tracking-wide
+                     bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent">
             Agendamentos
         </h1>
 {{-- BOTÃO RELATÓRIO --}}
@@ -259,32 +259,34 @@ async buscarClientes() {
     @endforelse
 </div>
 {{-- MODAL RELATÓRIO --}}
+
 <div
-    x-show="relatorioOpen"
-    x-transition.opacity
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+x-show="relatorioOpen"
+x-transition
+class="fixed top-0 left-0 w-full h-full z-50 flex items-start justify-center pt-20
+       bg-black/10 backdrop-blur-sm overflow-y-auto"
 >
-    <div
-        x-show="relatorioOpen"
-        x-transition
-        class="w-[95%] md:w-[90%] lg:w-[85%] xl:w-[80%] max-h-[95vh] overflow-y-auto
-       bg-[#1a1410] border border-yellow-500/20 rounded-2xl p-6 shadow-2xl
-       transform -translate-y-8"
+<div class="relative w-[95%] md:w-[90%] lg:w-[85%] xl:w-[80%]
+                bg-[#1a1410]/95 border border-yellow-500/20 rounded-2xl p-8 shadow-2xl
+                transform -translate-y-[70px] transition-all duration-500">
+
+    {{-- BOTÃO FECHAR (canto superior direito) --}}
+    <button
+        @click="relatorioOpen = false"
+        class="absolute top-4 right-4 text-yellow-300 hover:text-yellow-100 transition text-2xl"
+        title="Fechar"
     >
+        <i class="ph ph-x-circle"></i>
+    </button>
 
-        {{-- CABEÇALHO --}}
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
-                Relatório de Agendamentos
-            </h2>
-            <button @click="relatorioOpen = false"
-                class="text-yellow-300 hover:text-yellow-100 transition text-xl">
-                <i class="ph ph-x-circle"></i>
-            </button>
-        </div>
+    {{-- TÍTULO CENTRALIZADO --}}
+    <h2 class="text-3xl  font-orbitron tracking-wide
+                     bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent flex justify-center mb-4">
+        Relatório de Agendamentos
+    </h2>
 
-        {{-- CONTEÚDO SERÁ INSERIDO NAS PRÓXIMAS ETAPAS --}}
-        <div class="text-yellow-200/60">
+    {{-- CONTEÚDO --}}
+    <div class="text-yellow-200/60">
             {{-- FILTROS DO RELATÓRIO --}}
 <div class="space-y-6">
 

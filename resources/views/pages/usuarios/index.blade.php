@@ -55,15 +55,18 @@
   .popover[data-open="true"]  { opacity: 1; transform: scale(1); }
 </style>
 
-<div class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3] space-y-8">
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
 
   {{-- Cabeçalho --}}
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
     <div>
-      <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-300 bg-clip-text text-transparent">
-        Usuários
-      </h1>
-      <p class="text-yellow-300/70 mt-2">Gerencie clientes, barbeiros e administradores</p>
+      <h1 class="text-4xl font-orbitron tracking-wide inline-block
+           bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400
+           bg-clip-text text-transparent">
+  Usuários
+</h1>
+
+      <p class="text-yellow-300/70 mt-2 font-poppins tracking-tight font-bold">Gerencie clientes e barbeiros</p>
     </div>
 
     @if($usuarioLogado->tipo !== 'cliente')
@@ -111,113 +114,114 @@
   @endif
 
   {{-- Lista (cards por linha) --}}
-  <div class="space-y-4">
-    @forelse($usuarios as $usuario)
-      @php
-        $nome = $usuario->nome ?? '';
-        $iniciais = collect(preg_split('/\s+/', trim($nome)))->filter()->slice(0,2)->map(function($p){ return mb_strtoupper(mb_substr($p,0,1)); })->implode('');
-        // Badge dourada premium (BC2): variações leves
-        $badgeStyle = 'border border-yellow-400/40 text-yellow-200/90 bg-yellow-300/5 shadow-[inset_0_0_8px_rgba(255,230,180,0.18)]';
-        $tipoLabel = ucfirst($usuario->tipo);
-      @endphp
+<div class="space-y-4">
+  @forelse($usuarios as $usuario)
+    @php
+      $nome = $usuario->nome ?? '';
+      $iniciais = collect(preg_split('/\s+/', trim($nome)))
+          ->filter()
+          ->slice(0,2)
+          ->map(fn($p) => mb_strtoupper(mb_substr($p,0,1)))
+          ->implode('');
+      $tipoLabel = ucfirst($usuario->tipo);
+    @endphp
 
-        <div class="relative sweep overflow-hidden fade-in-up"
-            style="animation-delay: {{ $loop->index * 70 }}ms;">
-        <div class="group flex items-center gap-4 rounded-2xl p-4 md:p-5
-                bg-[#1a1410]/60 backdrop-blur-md border border-yellow-500/20
-                shadow-[0_0_12px_rgba(212,175,55,0.18)]
-                hover:shadow-[0_0_26px_rgba(255,255,255,0.45)]
-                transition-all duration-300">
+    <div class="relative p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-yellow-500/20
+                shadow-[0_0_14px_rgba(255,199,44,0.08)] hover:shadow-[0_0_35px_rgba(255,199,44,0.35)]
+                transition-all duration-500 group overflow-hidden">
 
+      <div class="flex items-center gap-4 justify-between flex-wrap">
 
+        {{-- Avatar --}}
+        <div class="relative shrink-0 w-16 h-16 rounded-full
+                    bg-gradient-to-br from-yellow-400 to-yellow-600
+                    flex items-center justify-center text-[#1a1410] font-extrabold text-xl
+                    shadow-[0_0_14px_rgba(255,215,0,0.35)]">
+          {{ $iniciais ?: 'US' }}
+        </div>
 
-          {{-- Avatar (AVR1 redondo com gradiente dourado) --}}
-          <div class="relative shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-full
-                      bg-gradient-to-br from-yellow-400 to-yellow-600
-                      flex items-center justify-center text-[#1a1410] font-extrabold text-lg md:text-xl
-                      shadow-[0_0_10px_rgba(255,215,0,0.35)]">
-            {{ $iniciais ?: 'US' }}
+        {{-- Informações principais --}}
+        <div class="flex-1 min-w-[200px]">
+          <div class="flex flex-col md:flex-row md:items-center md:gap-3">
+            <h3 class="text-lg md:text-xl font-semibold text-[#f5e6d3] truncate">
+              {{ $usuario->nome }}
+            </h3>
+
+            {{-- Badge tipo --}}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs md:text-[13px]
+                         border border-yellow-400/40 text-yellow-200/90 bg-yellow-300/5 shadow-[inset_0_0_8px_rgba(255,230,180,0.18)]">
+              <i class="ph ph-shield-star text-[14px] opacity-80"></i>
+              {{ $tipoLabel }}
+            </span>
           </div>
 
-          {{-- Informações principais --}}
-          <div class="flex-1 min-w-0">
-            <div class="flex flex-col md:flex-row md:items-center md:gap-3">
-              <h3 class="text-lg md:text-xl font-semibold text-[#f5e6d3] truncate">
-                {{ $usuario->nome }}
-              </h3>
-              {{-- Badge tipo (BC2) --}}
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs md:text-[13px]
-                           {{ $badgeStyle }}">
-                <i class="ph ph-shield-star text-[14px] opacity-80"></i>
-                {{ $tipoLabel }}
-              </span>
-            </div>
-            <div class="mt-1 text-yellow-300/70 text-sm">
-              {{ $usuario->email }}
-            </div>
-            <div class="mt-1 text-yellow-300/60 text-xs md:text-sm">
-              Barbearia: <span class="text-yellow-200">{{ $usuario->barbearia->nome ?? '-' }}</span>
-            </div>
+          <div class="mt-1 text-yellow-300/70 text-sm truncate">
+            {{ $usuario->email }}
           </div>
-
-          {{-- Ações (BTN-B: ícone move levemente no hover) --}}
-          <div class="flex items-center gap-2 md:gap-3">
-            @if($usuarioLogado->tipo === 'admin' || ($usuarioLogado->tipo === 'barbeiro' && $usuario->barbearia_id === $usuarioLogado->barbearia_id))
-              <a href="{{ route('usuarios.edit', $usuario->id) }}"
-                 class="group/action inline-flex items-center gap-2 rounded-full px-3.5 py-2
-                        bg-yellow-500/90 text-[#1a1410] font-semibold
-                        hover:bg-yellow-400 transition-all">
-                <i class="ph ph-pencil-line text-[18px] translate-x-0 group-hover/action:translate-x-0.5 transition-transform"></i>
-                <span class="hidden sm:inline">Editar</span>
-              </a>
-            @endif
-
-            @if($usuarioLogado->tipo === 'admin')
-              <div class="relative" data-popover>
-                <button type="button"
-                        class="group/action inline-flex items-center gap-2 rounded-full px-3.5 py-2
-                               bg-red-500/90 text-white font-semibold
-                               hover:bg-red-400 transition-all"
-                        data-popover-toggle>
-                  <i class="ph ph-trash text-[18px] translate-x-0 group-hover/action:-translate-x-0.5 transition-transform"></i>
-                  <span class="hidden sm:inline">Deletar</span>
-                </button>
-
-                {{-- Popover de confirmação (CONF3) --}}
-                <div class="popover absolute right-0 mt-2 z-10 w-60 rounded-xl p-4
-                            bg-[#1a1410]/95 border border-yellow-500/20
-                            shadow-[0_8px_24px_rgba(0,0,0,0.45)]
-                            text-[#f5e6d3]" data-open="false">
-                  <div class="text-sm font-semibold mb-2">Confirmar exclusão</div>
-                  <p class="text-xs text-yellow-300/80 mb-3">
-                    Tem certeza que deseja deletar <span class="text-yellow-200 font-semibold">{{ $usuario->nome }}</span>?
-                  </p>
-                  <div class="flex items-center justify-end gap-2">
-                    <button type="button"
-                            class="px-3 py-1.5 rounded-full text-xs bg-white/5 text-yellow-200 border border-white/10 hover:bg-white/10"
-                            data-popover-cancel>Cancelar</button>
-
-                    <form method="POST" action="{{ route('usuarios.destroy', $usuario->id) }}" class="inline">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit"
-                              class="px-3 py-1.5 rounded-full text-xs bg-red-500/90 text-white hover:bg-red-400">
-                        Confirmar
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            @endif
+          <div class="mt-1 text-yellow-300/60 text-xs md:text-sm truncate">
+            Barbearia:
+            <span class="text-yellow-200">{{ $usuario->barbearia->nome ?? '-' }}</span>
           </div>
         </div>
+
+        {{-- Ações --}}
+        <div class="flex items-center gap-2 md:gap-3">
+          @if($usuarioLogado->tipo === 'admin' || ($usuarioLogado->tipo === 'barbeiro' && $usuario->barbearia_id === $usuarioLogado->barbearia_id))
+            <a href="{{ route('usuarios.edit', $usuario->id) }}"
+               class="group/action inline-flex items-center gap-2 rounded-full px-3.5 py-2
+                      bg-yellow-500/90 text-[#1a1410] font-semibold
+                      hover:bg-yellow-400 transition-all">
+              <i class="ph ph-pencil-line text-[18px] translate-x-0 group-hover/action:translate-x-0.5 transition-transform"></i>
+              <span class="hidden sm:inline">Editar</span>
+            </a>
+          @endif
+
+          @if($usuarioLogado->tipo === 'admin')
+            <div class="relative" data-popover>
+              <button type="button"
+                      class="group/action inline-flex items-center gap-2 rounded-full px-3.5 py-2
+                             bg-red-500/90 text-white font-semibold
+                             hover:bg-red-400 transition-all"
+                      data-popover-toggle>
+                <i class="ph ph-trash text-[18px] translate-x-0 group-hover/action:-translate-x-0.5 transition-transform"></i>
+                <span class="hidden sm:inline">Deletar</span>
+              </button>
+
+              {{-- Popover de confirmação --}}
+              <div class="popover absolute right-0 mt-2 z-10 w-60 rounded-xl p-4
+                          bg-[#1a1410]/95 border border-yellow-500/20
+                          shadow-[0_8px_24px_rgba(0,0,0,0.45)]
+                          text-[#f5e6d3]" data-open="false">
+                <div class="text-sm font-semibold mb-2">Confirmar exclusão</div>
+                <p class="text-xs text-yellow-300/80 mb-3">
+                  Deseja excluir <span class="text-yellow-200 font-semibold">{{ $usuario->nome }}</span>?
+                </p>
+                <div class="flex items-center justify-end gap-2">
+                  <button type="button"
+                          class="px-3 py-1.5 rounded-full text-xs bg-white/5 text-yellow-200 border border-white/10 hover:bg-white/10"
+                          data-popover-cancel>Cancelar</button>
+
+                  <form method="POST" action="{{ route('usuarios.destroy', $usuario->id) }}" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="px-3 py-1.5 rounded-full text-xs bg-red-500/90 text-white hover:bg-red-400">
+                      Confirmar
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          @endif
+        </div>
       </div>
-    @empty
-      <div class="rounded-2xl border border-yellow-500/20 bg-[#1a1410]/60 backdrop-blur-md p-8 text-center text-yellow-300/70">
-        Nenhum usuário encontrado.
-      </div>
-    @endforelse
-  </div>
+    </div>
+  @empty
+    <div class="rounded-2xl border border-yellow-500/20 bg-[#1a1410]/60 backdrop-blur-md p-8 text-center text-yellow-300/70">
+      Nenhum usuário encontrado.
+    </div>
+  @endforelse
+</div>
 
   {{-- Paginação (opcional) --}}
   @if(method_exists($usuarios, 'links'))

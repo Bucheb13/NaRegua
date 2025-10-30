@@ -5,15 +5,18 @@
 @section('content')
 {{-- ======================= DASHBOARD ======================= --}}
 
-<div class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3] space-y-10">
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
+
 
     {{-- Cabeçalho --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-            <h1 class="text-4xl font-extrabold bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent">
-                Painel de Controle
-            </h1>
-            <p class="text-yellow-300/70 mt-2">Visão geral do seu negócio em tempo real</p>
+          <h1 class="text-4xl  font-orbitron tracking-wide
+                     bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent">
+            Painel de Controle
+          </h1>
+          <p class="text-yellow-300/70 mt-2 font-poppins tracking-tight font-bold">
+            Visão geral do seu negócio em tempo real
         </div>
 
         <div class="flex items-center gap-3 bg-[#2a1f1a]/60 backdrop-blur-md px-5 py-3 rounded-xl border border-yellow-500/20 shadow-lg">

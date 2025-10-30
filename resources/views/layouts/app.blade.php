@@ -92,25 +92,25 @@
       }
   }"
   @keydown.escape="onCloseEdit()"
-  class="bg-[#1a1410] text-[#f5e6d3] font-sans antialiased min-h-screen flex">
+  class="bg-[#1a1410]/10 text-[#f5e6d3] font-sans antialiased min-h-screen flex">
 
 
 
 
 <!-- Sidebar -->
-<aside
-    x-show="openSidebar"
-    @click.outside="if (window.innerWidth < 768) openSidebar = false"
-    id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 w-72 bg-[#1a1410]/70 backdrop-blur-xl border-r border-yellow-500/20 text-yellow-200 transform transition-all duration-300 overflow-y-auto
-           md:static md:flex md:flex-col md:translate-x-0"
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="-translate-x-full"
-    x-transition:enter-end="translate-x-0"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="translate-x-0"
-    x-transition:leave-end="-translate-x-full"
->
+<aside x-show="openSidebar"
+       @click.outside="if (window.innerWidth < 768) openSidebar = false"
+       id="sidebar"
+       class="fixed inset-y-0 left-0 z-40 w-72 bg-gradient-to-b from-[#1a1410]/30 to-[#1a1410]/10
+ backdrop-blur-2xl border-r border-yellow-500/20 text-yellow-200 shadow-[inset_0_0_20px_rgba(212,175,55,0.08)] transform transition-all duration-300 overflow-y-auto
+              md:static md:flex md:flex-col md:translate-x-0"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="-translate-x-full"
+       x-transition:enter-end="translate-x-0"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-start="translate-x-0"
+       x-transition:leave-end="-translate-x-full">
+
 
 
 
@@ -240,7 +240,7 @@
           {{-- IMPORTANTE: scripts por página aqui dentro --}}
           @stack('scripts')
       </main>
-  </div>
+ </div>
  
 </body>
  <!-- MODAL NOVA BARBEARIA -->

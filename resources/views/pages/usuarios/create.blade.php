@@ -30,7 +30,7 @@
   }
 </style>
 
-<div class="p-8 min-h-screen bg-gradient-to-b from-[#1a1410] to-[#2a1f1a] text-[#f5e6d3] space-y-8">
+<div class="p-8 min-h-screen bg-[#1a1410]/10 backdrop-blur-sm text-[#f5e6d3] space-y-10">
 
   {{-- Banner Premium (H3) --}}
   <div class="rounded-2xl overflow-hidden border border-yellow-500/20 bg-gradient-to-r from-[#221811] via-[#2a1f1a] to-[#221811] shadow-[0_0_18px_rgba(212,175,55,0.25)]">
@@ -39,10 +39,13 @@
       <div class="flex items-center gap-4">
         <i class="ph ph-user-circle text-5xl text-yellow-300/90"></i>
         <div>
-          <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-300 bg-clip-text text-transparent">
-            Criar Usuário
-          </h1>
-          <p class="text-yellow-300/75 mt-1">Cadastre um novo usuário e defina permissões e vínculos</p>
+          <h1 class="text-4xl font-orbitron tracking-wide inline-block
+           bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400
+           bg-clip-text text-transparent">
+  Cadastrar Novos Usuários
+</h1>
+
+          <p class="text-yellow-300/70 mt-2 font-poppins tracking-tight font-bold">Cadastre um novo cliente ou barbeiro</p>
         </div>
       </div>
     </div>
