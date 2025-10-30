@@ -24,8 +24,8 @@ class UsuarioSeeder extends Seeder
         // Barbeiros
         Usuario::create([
             'barbearia_id' => 1,
-            'nome' => 'João Barbeiro',
-            'email' => 'joao@naregua.com',
+            'nome' => 'Barbeiro',
+            'email' => 'barbeiro@naregua.com',
             'senha' => Hash::make('123456'),
             'tipo' => 'barbeiro',
             'telefone' => '11988888888',
@@ -36,7 +36,7 @@ class UsuarioSeeder extends Seeder
         Usuario::create([
             'barbearia_id' => 1,
             'nome' => 'Carlos Barbeiro',
-            'email' => 'carlos@naregua.com',
+            'email' => 'barber@naregua.com',
             'senha' => Hash::make('123456'),
             'tipo' => 'barbeiro',
             'telefone' => '11977777777',
